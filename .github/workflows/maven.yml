@@ -4,6 +4,9 @@
     push:
       branches:
         - "main"
+  defaults:
+    run:
+      working-directory: ./bookmarker-api
 
   jobs:
     build-bookmark-api:
