@@ -2,6 +2,7 @@ import { fetchBookmarks } from '@/services/api/fetchBookmarks'
 import React from 'react'
 import Bookmarks from '../components/Bookmarks';
 import Pagination from '../components/Pagination';
+import SearchForm from '../components/SearchForm';
 
 // 서버요청을 위한 컴포넌트
 /*
@@ -19,22 +20,25 @@ import Pagination from '../components/Pagination';
   => page?: 는 속성이 있을 수도 있고 없을 수도 있음을 의미한다. 있으면 string으로 변환해준다 
 */
 type Props = {
-  searchParams: Promise<{
+    searchParams: Promise<{
     page?: string;
+    query?: string;
   }>;
 };
 
 const Home = async ({ searchParams }: Props) => {
 
-  const { page } = await searchParams;
+  const { page, query } = await searchParams;
   const pageNumber = page ? parseInt(page,10):1;
+  const queryString = query ? String(query) :  "";
 
-  const bookmarks = await fetchBookmarks(pageNumber);// 서버사이트 데이터 패칭
+  const bookmarks = await fetchBookmarks(pageNumber, queryString);// 서버사이트 데이터 패칭
 
   return (
     <>
       <h2>Welcom to Bookmark</h2>
-      <Pagination bookmarks={bookmarks}/>
+      <SearchForm />
+      <Pagination bookmarks={bookmarks} query={query} />
 
       <ul>
         <Bookmarks bookmarks={bookmarks} />

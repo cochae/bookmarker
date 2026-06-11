@@ -29,12 +29,12 @@ const Pagination = ({ bookmarks, query }: PaginationProps) => {
             <nav aria-label="Page">
                 <ul style={{display:'flex', justifyContent:'space-between', padding:0, listStyle:'none'}}  className="pagination">
                     {/* 이전 */}
-                    <li className={"page-item" + (bookmarks.hasPrevious ? "" : "disabled")} >
+                    <li className={`page-item ${bookmarks.hasPrevious ? "" : "disabled"}`} >
                         <Link className="page-link" href={previousPage}>Previous</Link>
                     </li>
 
                     {/* 이후 */}
-                    <li className={"page-item" + (bookmarks.hasNext ? "" : "disabled")}>
+                    <li className={`page-item ${bookmarks.hasNext ? "" : "disabled"}`}>
                         <Link className="page-link" href={nextPage}>Next</Link>
                     </li>
                 </ul>
