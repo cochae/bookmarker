@@ -163,6 +163,3 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
-
-# End of https://www.toptal.com/developers/gitignore/api/java,maven,intellij,dbeaver
-/src/main/resources/application-local.properties
