@@ -1,37 +1,48 @@
 package com.min.edu.api;
 
-import com.min.edu.domain.Bookmark;
-import com.min.edu.repository.BookmarkRepository;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.is;
+
+import java.time.Instant;
+import java.util.List;
+
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.hamcrest.CoreMatchers;
 
-import java.time.Instant;
-import java.util.List;
+import com.min.edu.domain.Bookmark;
+import com.min.edu.repository.BookmarkRepository;
 
-import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+//Test를 위해서 무작위 포트의 사용을 위한 설정
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+//MVC 테스트를 위한 자동 설정
 @AutoConfigureMockMvc
+
+//jdbc:tc:postgresql:9.6.8:///databasename
+//테스트 컨테이너 추가
 @TestPropertySource(properties = {
-        //"spring.datasource.url=jdbc:tc:postgresql:14-alpine;///demo"
         "spring.datasource.url=jdbc:tc:postgresql:14-alpine:///demo"
 })
-public class BookmarkControllerTest {
+
+class BookmarkControllerTest {
+
+    //Test를 위한 MockMvc 객체를 선언
     @Autowired
-    private MockMvc mockMvc;
+    private MockMvc mvc;
+
+
     @Autowired
     private BookmarkRepository bookmarkRepository;
 
@@ -60,26 +71,37 @@ public class BookmarkControllerTest {
         bookmarkRepository.saveAll(bookmarks);
     }
 
-    @Test
-    void shouldBookmarks() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/bookmarks"))
+    //	@Test
+    void shouldBookmakrs() throws Exception {
+        //1번 테스트 단순히 /api/bookmakrs의 호출 여부 => 결과는 BookmarksDto
+        mvc.perform(MockMvcRequestBuilders.get("/api/bookmarks"))
                 .andExpect(status().isOk())
+
+                //2번 테스트 @BeforeEach에 의해서 모두 삭제되었기 때문에 totalElement가 0이면 된다
                 //  .andExpect(jsonPath("$.totalElements", CoreMatchers.equalTo(0)));
+
+                //3번 가상의 값(15개-@BeforeEach)을 사용해서 결과를 확인
                 .andExpect(jsonPath("$.totalElements", CoreMatchers.equalTo(15)))
                 .andExpect(jsonPath("$.totalPages", CoreMatchers.equalTo(2)))
                 .andExpect(jsonPath("$.currentPage", CoreMatchers.equalTo(1)))
                 .andExpect(jsonPath("$.isFirst", CoreMatchers.equalTo(true)))
                 .andExpect(jsonPath("$.isLast", CoreMatchers.equalTo(false)))
                 .andExpect(jsonPath("$.hasNext", CoreMatchers.equalTo(true)))
-                .andExpect(jsonPath("$.hasPrevious", CoreMatchers.equalTo(false)));
+                .andExpect(jsonPath("$.hasPrevious", CoreMatchers.equalTo(false)))
+        ;
+
     }
 
-    @ParameterizedTest
-    @CsvSource({"1, 15, 2, 1, true, false, true, false", "2, 15, 2, 2, false, true, false, true"})
+    // 페이징을 값을 입력해서 나오는결과를 테스트 한다
+    // page가 1이 전달됐을때 테스트, page가 2가 전달됐을때 테스트
+//	@ParameterizedTest
+    @CsvSource({"1,15,2,1,true,false,true,false", "2,15,2,2,false,true,false,true"})
     void shouldBookmarksPage(
-            int pageNo, int totalElements, int totalPages, int currentPage, boolean isFirst, boolean isLast, boolean hasNext, boolean hasPrevious
+            int pageNo, int totalElements, int totalPages, int currentPage,
+            boolean isFirst, boolean isLast, boolean hasNext, boolean hasPrevious
     ) throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/bookmarks?page="+pageNo))
+
+        mvc.perform(MockMvcRequestBuilders.get("/api/bookmarks?page="+pageNo))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements", CoreMatchers.equalTo(totalElements)))
                 .andExpect(jsonPath("$.totalPages", CoreMatchers.equalTo(totalPages)))
@@ -87,29 +109,51 @@ public class BookmarkControllerTest {
                 .andExpect(jsonPath("$.isFirst", CoreMatchers.equalTo(isFirst)))
                 .andExpect(jsonPath("$.isLast", CoreMatchers.equalTo(isLast)))
                 .andExpect(jsonPath("$.hasNext", CoreMatchers.equalTo(hasNext)))
-                .andExpect(jsonPath("$.hasPrevious", CoreMatchers.equalTo(hasPrevious)));
+                .andExpect(jsonPath("$.hasPrevious", CoreMatchers.equalTo(hasPrevious)))
+        ;
     }
+
+
+    // 오류를 예측해서 테스트를 진행
     @Test
     public void shouldCreateBookmark() throws Exception{
-        MvcResult result = mockMvc.perform(
-                MockMvcRequestBuilders.post("/api/bookmarks")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                "title":"Link Lion Study"
-                                }
-                                """)
-        )
+
+        // 반환되는 결과를 확인하기 위해서 MvcResult를 사용해야 한다
+        MvcResult result = mvc.perform(
+                        MockMvcRequestBuilders.post("/api/bookmarks")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+							{
+							  "title":"Link Lion Study"
+							}
+							""")
+                )
+                /*
+                 * 반환되는 결과
+                 * {
+                        "field": "url",
+                        "message": "URL은 필수 입력값 입니다",
+                        "status": 400
+                    }
+                 */
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.field", is("url")))
-                .andExpect(jsonPath("$.message", is("URL은 필수입니다.")))
+                .andExpect(jsonPath("$.message", is("URL은 필수 입력값 입니다")))
                 .andReturn();
-        
+
         String contentType = result.getResponse().getContentType();
-        System.out.println("contentType = " + contentType);
-        
+        System.out.println("Content-Type : \t" + contentType);
+
         String responseBody = result.getResponse().getContentAsString();
-        System.out.println("responseBody = " + responseBody);
+        System.out.println("Response JSON : \t" + responseBody);
+
     }
+
 }
+
+
+
+
+
+
