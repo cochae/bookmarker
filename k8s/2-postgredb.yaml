@@ -23,14 +23,14 @@ spec:
           env:
             - name: POSTGRES_USER
               valueForm:
-                ConfigMapKeyRef:
-                  name: bookmarker-config
+                secretKeyRef:
+                  name: bookmarker-secrets
                   key: postgres_username
 
             - name: POSTGRES_PASSWORD
               valueForm:
-                ConfigMapKeyRef:
-                  name: bookmarker-config
+                secretKeyRef:
+                  name: bookmarker-secrets
                   key: postgres_password
 
             - name: POSTGRES_DB
