@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>4.0.6</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath /> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.min.edu</groupId>
     <artifactId>bookmarker-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>bookmarker-api</name>
-    <description>bookmarker-api</description>
-    <url/>
+    <description />
+    <url />
     <licenses>
-        <license/>
+        <license />
     </licenses>
     <developers>
-        <developer/>
+        <developer />
     </developers>
     <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
+        <connection />
+        <developerConnection />
+        <tag />
+        <url />
     </scm>
     <properties>
         <java.version>21</java.version>
@@ -105,6 +106,8 @@
             <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-testcontainers</artifactId>
@@ -115,12 +118,29 @@
             <artifactId>testcontainers-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+
+
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers-postgresql</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <!--
+        dependenyManagement를 통해서 버전을 반복해서 사용할 경우 
+        Bill or Materials(BOM)를 의미한다 
+        소프트웨어 개발에서 BOM은 함께 사용할 때 모든 라이브러리가 호환되는 것을 보장 한다
+    -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -135,7 +155,27 @@
 
     <build>
         <plugins>
-
+            <!--
+                (❁´◡`❁) (❁´◡`❁) (❁´◡`❁) (❁´◡`❁) (❁´◡`❁)
+                2. BuildPacks 
+            -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                    <!--
+                        <image>
+                            <name>cochaewon/${artifactId}:3.0</name>
+                        </image>
+                    -->
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -154,7 +194,8 @@
                                 </path>
                                 <path>
                                     <groupId>org.springframework.boot</groupId>
-                                    <artifactId>spring-boot-configuration-processor</artifactId>
+                                    <artifactId>
+                                        spring-boot-configuration-processor</artifactId>
                                 </path>
                             </annotationProcessorPaths>
                         </configuration>
@@ -176,64 +217,67 @@
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>io.fabric8</groupId>-->
-<!--                <artifactId>docker-maven-plugin</artifactId>-->
-<!--                <version>0.45.0</version>-->
-<!--                <configuration>-->
-<!--                    <images>-->
-<!--                        <image>-->
-<!--                            <name>cochaewon/bookmark-api:2.0</name>-->
-<!--                            <build>-->
-<!--                                <dockerFileDir>${basedir}</dockerFileDir>-->
-<!--                            </build>-->
-<!--                        </image>-->
-<!--                    </images>-->
-<!--                </configuration>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>docker-build</id>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>build</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
 
+            <!--
+                ༼ つ ◕_◕ ༽つ ༼ つ ◕_◕ ༽つ ༼ つ ◕_◕ ༽つ ༼ つ ◕_◕ ༽つ ༼ つ ◕_◕ ༽つ
+                1. Dockerfile using for jar  
+            -->
+            <!--
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.46.0</version>
                 <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-<!--                    <image>-->
-<!--                        <name>cochaewon/${artifactId}:3.0</name>-->
-<!--                    </image>-->
+                    <images>
+                        <image>
+                            <name>cochaewon/bookmark-api:2.0</name>
+                            <build>
+                                <dockerFileDir>${basedir}</dockerFileDir>
+                            </build>
+                        </image>
+                    </images>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>docker-build</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
+            -->
+
+
+            <!--
+                ლ(╹◡╹ლ) ლ(╹◡╹ლ) ლ(╹◡╹ლ) ლ(╹◡╹ლ) ლ(╹◡╹ლ)
+                3. jib
+                https://github.com/GoogleContainerTools/jib/tree/master/jib-maven-plugin
+            -->
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
                     <from>
-                        <image>eclipse-temurin:21-jre</image>
+                        <image>eclipse-temurin:21-jre-jammy</image>
                     </from>
+                    <!-- 생성된 이미지는 바로 Docker hub로 전송된다 -->
                     <to>
-                        <image>cochaewon/${artifactId}:4.0</image>
-<!--                        <auth>-->
-<!--                            <username>${env.DOCKER_USERNAME}</username>-->
-<!--                            <password>${env.DOCKER_PASSWORD}</password>-->
-<!--                        </auth>-->
+                        <image>docker.io/cochaewon/${project.artifactId}</image>
                     </to>
                 </configuration>
             </plugin>
+
+
         </plugins>
     </build>
 
 </project>
+
+
+
+
+
+
