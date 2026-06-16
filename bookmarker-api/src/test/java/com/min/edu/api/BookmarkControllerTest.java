@@ -139,7 +139,7 @@ class BookmarkControllerTest {
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.field", is("url")))
-                .andExpect(jsonPath("$.message", is("URL은 필수 입력값 입니다")))
+                .andExpect(jsonPath("$.message", is("URL은 필수입니다.")))
                 .andReturn();
 
         String contentType = result.getResponse().getContentType();
