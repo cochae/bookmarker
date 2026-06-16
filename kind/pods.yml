@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: bookmarker-api
+    version: "1.0" #kubernets 리소스 버전 구분용
+  name: bookmarker-api
+spec:
+  containers:
+    - image: cochaewon/bookmarker-api
+      name: bookmarker-api
+      ports:
+        - containerPort: 8080
+  #    resources: {}
+  #  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+#status: {}

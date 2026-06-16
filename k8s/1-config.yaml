@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: bookmarker-config
+
+data:
+  postgres_host: postgres
+  postgres_dbname: appdb
+  postgres_port: "5432"
+  postgres_username: postgres #추후에 Secrets로 변경
+  postgres_password: postgres #추후에 Secrets로 변경

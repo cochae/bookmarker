@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: bookmarker-api-service # 서비스 자체의 라벨도 일관성 있게 변경!
+  name: my-spring-service
+spec:
+  ports:
+    - port: 8080 # 클러스터 내부에서 서비스가 쓰는 포트
+      protocol: TCP
+      targetPort: 8080 # 진짜 스프링 부트 파드가 열고 있는 포트 (정확함!)
+      nodePort: 30080 # ⭐ 브라우저에 주소 치고 들어올 외곽 포트!
+  selector:
+    app: bookmarker-api # 🎯 중요: 아까 만든 파드의 라벨(app: bookmarker-api)과 일치시킴!
+  type: NodePort
