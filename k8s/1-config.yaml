@@ -5,8 +5,18 @@ metadata:
   name: bookmarker-config
 
 data:
-  postgres_host: postgres
+  # postgres_host: postgres
   postgres_dbname: appdb
   postgres_port: "5432"
-  postgres_username: postgres #추후에 Secrets로 변경
-  postgres_password: postgres #추후에 Secrets로 변경
+
+---
+apiVersion: v1
+kind: Secret
+
+data:
+  postgres_username: cG9zdGdyZXM=
+  postgres_password: cG9zdGdyZXM=
+type: Opaque
+
+metadata:
+  name: bookmark-secrets
