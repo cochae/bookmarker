@@ -47,5 +47,5 @@ spec:
           env:
             - name: SERVER_SIDE_API_BASE_URL
               value: http://bookmarker-api-svc:8080
-            - name: NEXT_PUBLIC_CLIENT_SIDE_API_BASE_URL
+            - name: NEXT_PUBLIC_CLIENT_SIDE_API_BASE
               value: http://localhost:18080
