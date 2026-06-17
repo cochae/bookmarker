@@ -1,22 +1,18 @@
 apiVersion: v1
 kind: ConfigMap
-
 metadata:
   name: bookmarker-config
-
 data:
-  # postgres_host: postgres
+  postgres_host: postgres-svc # 나중에 만들 서비스 이름입니다!
   postgres_dbname: appdb
   postgres_port: "5432"
-
 ---
 apiVersion: v1
 kind: Secret
-
-data:
-  postgres_username: cG9zdGdyZXM=
-  postgres_password: cG9zdGdyZXM=
 type: Opaque
-
 metadata:
   name: bookmark-secrets
+data:
+  # 'postgres'라는 글자를 Base64로 인코딩한 값입니다.
+  postgres_username: cG9zdGdyZXM=
+  postgres_password: cG9zdGdyZXM=

@@ -1,0 +1,51 @@
+apiVersion: v1 # k8s의 API 버전 (Service 는 v1을 사용)
+kind: Service # 리소스의 종류 : Service (Pod에 네트워크 접근 제공)
+
+metadata:
+  name: bookmarker-ui-svc # Service의 이름
+
+spec:
+  type: NodePort # 외부에서(브라우저) 접근 가능다도록 NodePort, 만약 내부에서 서로 연결한다면 기본값인 ClusterIP를 사용
+
+  selector:
+    app: bookmarker-ui-pod # deployment의 label 이름 , 이 label의 이름을 가진 Pod와 연결
+
+  ports:
+    - name: app-port-mapping # 포트 매핑 이름
+      protocol: TCP # 통신 프로토콜
+      port: 3000 # 클러스터 내부에서 service가 노출하는 포트
+      targetPort: 3000 # 실제 컨테이너가 사용하는 포트(Docker이미지의 EXPOSE 이다)
+      nodePort: 30080 # 노드의 30080 포트로 외부(브라우저) 접근 가능
+
+--- # 구분인자 , YAML을 물리적으로 구분하지 하나의 파일에 두개의 kind를 사용할 때 사용합니다
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: bookmarker-ui-deployment
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookmarker-ui-pod
+
+  ##
+
+  template:
+    metadata:
+      labels:
+        app: bookmarker-ui-pod
+
+    spec:
+      containers:
+        - name: bookmarker-ui
+          image: cochaewon/bookmark-ui-nextjs
+          ports:
+            - containerPort: 3000
+          env:
+            - name: SERVER_SIDE_API_BASE_URL
+              value: http://bookmarker-api-svc:8080
+            - name: NEXT_PUBLIC_CLIENT_SIDE_API_BASE_URL
+              value: http://localhost:18080

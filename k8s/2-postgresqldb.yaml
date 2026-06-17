@@ -1,0 +1,89 @@
+# [1] 실제 저장 공간 정의 (PV)
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+spec:
+  capacity:
+    storage: 2Gi # 크기는 2기가바이트
+  accessModes:
+    - ReadWriteOnce # 한 번에 하나의 파드만 읽고 쓰기 가능
+  storageClassName: standard # 스토리지 클래스 지정
+  hostPath:
+    path: /data/db # 가상 노드(Docker KinD 컨테이너 내부)의 물리 경로
+---
+# [2] 저장 공간 요청서 (PVC)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi # PV에게 1기가바이트만큼 떼어달라고 요청 (PV 용량보다 작아야 함)
+  storageClassName: standard
+---
+# [3] PostgreSQL DB 배포 정의 (Deployment)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1 # DB는 데이터 꼬임을 방지하기 위해 기본 1개로 시작합니다.
+  selector:
+    matchLabels:
+      app: postgres-pod
+  template:
+    metadata:
+      labels:
+        app: postgres-pod
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:14-alpine
+          ports:
+            - containerPort: 5432
+
+          # [1단계에서 만든 ConfigMap과 Secret을 환경 변수로 주입]
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: bookmark-secrets
+                  key: postgres_username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bookmark-secrets
+                  key: postgres_password
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: bookmarker-config
+                  key: postgres_dbname
+
+          # [컨테이너 내부의 어느 폴더를 외부 디스크와 연결할지 지정]
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data # PostgreSQL이 데이터를 쌓는 기본 경로입니다.
+
+      # [PVC 요청서를 기반으로 볼륨을 준비]
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-svc # [중요] ConfigMap에 적었던 그 이름 그대로 설정합니다!
+spec:
+  ports:
+    - port: 5432 # 서비스가 제공할 포트
+      targetPort: 5432 # 실제 PostgreSQL 파드가 리스닝하는 포트
+  selector:
+    app: postgres-pod # 2단계에서 만든 PostgreSQL 파드의 labels와 일치해야 합니다!
+  type: ClusterIP # 클러스터 내부에서만 통신하도록 설정 (내선 번호)
+

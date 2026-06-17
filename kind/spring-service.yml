@@ -9,7 +9,7 @@ spec:
     - port: 8080 # 클러스터 내부에서 서비스가 쓰는 포트
       protocol: TCP
       targetPort: 8080 # 진짜 스프링 부트 파드가 열고 있는 포트 (정확함!)
-      nodePort: 30080 # ⭐ 브라우저에 주소 치고 들어올 외곽 포트!
+      nodePort: 30090 # ⭐ 브라우저에 주소 치고 들어올 외곽 포트!
   selector:
-    app: bookmarker-api # 🎯 중요: 아까 만든 파드의 라벨(app: bookmarker-api)과 일치시킴!
+    app: bookmarker-api-pod # 🎯 중요: 아까 만든 파드의 라벨(app: bookmarker-api)과 일치시킴!
   type: NodePort
