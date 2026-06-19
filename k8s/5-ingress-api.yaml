@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1 #  Ingress API 버전
+kind: Ingress #  리소스 종류 : Ingress (외부 HTTP /HTTPS 라우팅)
+metadata:
+  name: bookmarker-api-ingress # Ingress 이름
+  annotations:
+    # 요청 URL을 재작성(rewriter)
+    # 정규식에서 두번째 그룹(.*)을 사용해서 실제 백엔드로 전달
+    # 예: /bookmarker-api/test -> /test로 전달
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+
+    # path에서 정규 표현식을 사용할 수 있도록 허용
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                # 트래픽을 전달할 k8s service 이름
+                name: bookmarker-api-svc
+                # 해당 service 포트
+                port:
+                  number: 8080
+            # 정규화 표현식 경로 매핑
+            # (/|$) -> 뒤에 / 나오거나 끝나는 경우 허용
+            # (.*) -> 그 뒤에 모든 경로를 $2로 사용
+            path: /bookmarker-api(/|$)(.*)
+
+            # Ingress Controller의 구현방식에 따름
+            # 정규화 표현식을 보통 이 타입을 사용한다
+            pathType: ImplementationSpecific
